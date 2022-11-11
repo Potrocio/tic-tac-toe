@@ -53,14 +53,14 @@ const constructedObjects = ((cell,player,pattern) => {
     })();
 
     const winningPatterns = (() => {
-        const rowOne = pattern(1,2,3);
-        const rowTwo = pattern(3,4,5);
-        const rowThree = pattern(6,7,8);
-        const columnOne = pattern(1,4,7);
-        const columnTwo = pattern(2,5,8);
-        const columnThree = pattern(3,6,9);
-        const rowOneDiagonal = pattern(1,5,9);
-        const rowThreeDiagonal = pattern(3,5,7);
+        const rowOne = pattern(boardCells.cellOne,boardCells.cellTwo,boardCells.cellThree);
+        const rowTwo = pattern(boardCells.cellThree,boardCells.cellFour,boardCells.cellFive);
+        const rowThree = pattern(boardCells.cellSix,boardCells.cellSeven,boardCells.cellEight);
+        const columnOne = pattern(boardCells.cellOne,boardCells.cellFour,boardCells.cellSeven);
+        const columnTwo = pattern(boardCells.cellTwo,boardCells.cellFive,boardCells.cellEight);
+        const columnThree = pattern(boardCells.cellThree,boardCells.cellSix,boardCells.cellNine);
+        const rowOneDiagonal = pattern(boardCells.cellOne,boardCells.cellFive,boardCells.cellNine);
+        const rowThreeDiagonal = pattern(boardCells.cellThree,boardCells.cellFive,boardCells.cellSeven);
         return{rowOne,rowTwo,rowThree,columnOne,columnTwo,columnThree,rowOneDiagonal,rowThreeDiagonal};
     })()
 
@@ -71,21 +71,30 @@ const constructedObjects = ((cell,player,pattern) => {
 const gameEvents = (() => {
     const updateGameBoard = (() => {
         querySelectors.cells.forEach((cell) => {
-            cell.addEventListener('click', () => {
+            cell.addEventListener('click', (e) => {
                 if(cell.textContent == '') {
                     cell.textContent = constructedObjects.players.user.mark;
+                    console.log(e.target.classList.value)
+                    //left off here
                 }
             })
         })    
     })();
 
     const checkWinner = () => {
-
+        for (let object in constructedObjects.winningPatterns) {
+            object = constructedObjects.winningPatterns[object]
+            console.log(object.cellA,object.cellB,object.cellC)
+            if(object.cellA.mark === object.cellB.mark && object.cellB.mark === object.cellC.mark) {
+                if(object.cellA.mark !== '') {
+                    console.log('the winning pattern is ' +object);
+                }
+            }
+        };
     }
 
     return{checkWinner//,updateTurn,updateScore,computerTurn,declareWinner
     };
 })()
-
 
 //computer turn
