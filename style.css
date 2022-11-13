@@ -59,3 +59,20 @@ body {
     margin-bottom: 8rem;
 }
 
+.message {
+    grid-area: 3/2/3/3;
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+button {
+    background-color: rgb(48, 116, 116);
+    border-radius: 10px;
+    font-size: 24px;
+    margin-left: 50px;
+    color: white;
+    font-weight: bold;
+}
+

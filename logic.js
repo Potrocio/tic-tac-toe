@@ -4,19 +4,23 @@ const querySelectors = (() => {
     const cells = document.querySelectorAll('.cell');
     const userScore = document.querySelector('.user-score > .score');
     const computerScore = document.querySelector('.computer-score > .score');
-    return {cells,userScore,computerScore};
+    const messageBoard = document.querySelector('.message');
+    return {cells,userScore,computerScore,messageBoard};
 })();
-
 
 function defaultGameVariables() {
     querySelectors.userScore.textContent = 0;
     querySelectors.computerScore.textContent = 0;
     querySelectors.cells.forEach((cell) => cell.textContent = '');
+    for(let object in constructedObjects.boardCells) {
+        let objectToBeEdited = constructedObjects.boardCells[object];
+        objectToBeEdited.mark = '';
+    };
 };
 
 const objectConstructors = (() => {
-    const Cell = (position,mark) => {
-        return{position,mark};
+    const Cell = (position,mark,className) => {
+        return{position,mark,className};
     }
 
     const Players = (name,mark) => {
@@ -34,15 +38,15 @@ const objectConstructors = (() => {
 
 const constructedObjects = ((cell,player,pattern) => {
     const boardCells = (() => {
-        const cellOne = cell(1,'');
-        const cellTwo = cell(2,'');
-        const cellThree = cell(3,'');
-        const cellFour = cell(4,'');
-        const cellFive = cell(5,'');
-        const cellSix = cell(6,'');
-        const cellSeven = cell(7,'');
-        const cellEight = cell(8,'');
-        const cellNine = cell(9,'');
+        const cellOne = cell(1,'','cell one');
+        const cellTwo = cell(2,'','cell two');
+        const cellThree = cell(3,'','cell three');
+        const cellFour = cell(4,'','cell four');
+        const cellFive = cell(5,'','cell five');
+        const cellSix = cell(6,'','cell six');
+        const cellSeven = cell(7,'','cell seven');
+        const cellEight = cell(8,'','cell eight');
+        const cellNine = cell(9,'','cell nine');
         return{cellOne,cellTwo,cellThree,cellFour,cellFive,cellSix,cellSeven,cellEight,cellNine};
     })()
 
@@ -54,8 +58,8 @@ const constructedObjects = ((cell,player,pattern) => {
 
     const winningPatterns = (() => {
         const rowOne = pattern(boardCells.cellOne,boardCells.cellTwo,boardCells.cellThree);
-        const rowTwo = pattern(boardCells.cellThree,boardCells.cellFour,boardCells.cellFive);
-        const rowThree = pattern(boardCells.cellSix,boardCells.cellSeven,boardCells.cellEight);
+        const rowTwo = pattern(boardCells.cellFour,boardCells.cellFive,boardCells.cellSix);
+        const rowThree = pattern(boardCells.cellSeven,boardCells.cellEight,boardCells.cellNine);
         const columnOne = pattern(boardCells.cellOne,boardCells.cellFour,boardCells.cellSeven);
         const columnTwo = pattern(boardCells.cellTwo,boardCells.cellFive,boardCells.cellEight);
         const columnThree = pattern(boardCells.cellThree,boardCells.cellSix,boardCells.cellNine);
@@ -69,13 +73,19 @@ const constructedObjects = ((cell,player,pattern) => {
 
 //game events
 const gameEvents = (() => {
+    let gameEnded = false;
     const updateGameBoard = (() => {
         querySelectors.cells.forEach((cell) => {
             cell.addEventListener('click', (e) => {
-                if(cell.textContent == '') {
+                if(cell.textContent == '' && gameEnded == false) {
                     cell.textContent = constructedObjects.players.user.mark;
-                    console.log(e.target.classList.value)
-                    //left off here
+                    for(let object in constructedObjects.boardCells) {
+                        if(constructedObjects.boardCells[object].className == e.target.classList.value)  {
+                            let objectToBeEdited = constructedObjects.boardCells[object];
+                            objectToBeEdited.mark = 'X';
+                        }
+                    };
+                    checkWinner();
                 }
             })
         })    
@@ -84,17 +94,54 @@ const gameEvents = (() => {
     const checkWinner = () => {
         for (let object in constructedObjects.winningPatterns) {
             object = constructedObjects.winningPatterns[object]
-            console.log(object.cellA,object.cellB,object.cellC)
             if(object.cellA.mark === object.cellB.mark && object.cellB.mark === object.cellC.mark) {
                 if(object.cellA.mark !== '') {
-                    console.log('the winning pattern is ' +object);
+                    if(object.cellA.mark == 'X') {
+                        declareWinner('User!');
+                        gameEnded = true;
+                        let currentScore = querySelectors.userScore.textContent;
+                        querySelectors.userScore.textContent = Number(currentScore) + 1;
+                        nextRound();
+                        break;
+                    } else {
+                        declareWinner('computer!');
+                        gameEnded = true;
+                        let currentScore = querySelectors.computerScore.textContent;
+                        querySelectors.computerScore.textContent = Number(currentScore) + 1;
+                        nextRound();
+                        break;
+                    };
+                    
                 }
+            } else {
+                // computerTurn()
             }
         };
-    }
-
-    return{checkWinner//,updateTurn,updateScore,computerTurn,declareWinner
     };
-})()
+
+    const declareWinner = (player) => {
+        querySelectors.messageBoard.textContent = 'The winner is ' + player;
+    };
+
+    const nextRound = () => {
+        const nextRoundButton = document.createElement('button');
+        nextRoundButton.classList.add('next-round');
+        nextRoundButton.textContent = 'Next round';
+        querySelectors.messageBoard.appendChild(nextRoundButton);
+        nextRoundButton.addEventListener('click', () => {
+            querySelectors.cells.forEach((cell) => cell.textContent = '');
+            for(let object in constructedObjects.boardCells) {
+                let objectToBeEdited = constructedObjects.boardCells[object];
+                objectToBeEdited.mark = '';
+            };
+            querySelectors.messageBoard.textContent = '';
+        });
+        gameEnded = false;
+    };
+    
+    
+    return{//,computerTurn,
+};
+})();
 
 //computer turn
