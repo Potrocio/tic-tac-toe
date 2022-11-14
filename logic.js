@@ -31,7 +31,6 @@ const objectConstructors = (() => {
         return{cellA,cellB,cellC};
     }
 
-    // const ComputerChoiceOptions
     return{Cell,Players,WinningPatterns};
 })();
 
@@ -70,6 +69,74 @@ const constructedObjects = ((cell,player,pattern) => {
 
     return{boardCells,players,winningPatterns};
 })(objectConstructors.Cell,objectConstructors.Players,objectConstructors.WinningPatterns);
+
+//AI training
+
+
+
+// let availablePositions = [1,2,3,4,5,6,7,8,9];
+// let availableCells = ['cellOne','cellTwo','cellThree','cellFour','cellFive','cellSix','cellSeven','cellEight','cellNine'];
+// for(let i=0 ; i < 9 ; i++) {
+//     resetBoardCells();
+//     let combination = '';
+//     let currentPosition = availableCells[i];
+// //change current position
+//     function filterAvailablePositions() {
+//         availablePositions = availablePositions.filter((number) => { 
+//             if(number !== currentPosition) {
+//                 return true;
+//             }
+//         }); 
+//     }
+
+//     function upgradeCombination() {
+//         combination += currentPosition;
+//         return combination;
+//     }
+    
+//     function markCell(marking) {
+//         constructedObjects.boardCells[availableCells[i]].mark = marking;
+//     }
+    
+//     function filterAvailableCells() {
+//         availableCells = availableCells.filter((item) => {
+//             if(item !== availableCells[i]) {
+//                 return true;
+//             }
+//         })
+//     }
+
+//     function resetBoardCells() {
+//         for(let object in constructedObjects.boardCells) {
+//             let objectToBeEdited = constructedObjects.boardCells[object];
+//             objectToBeEdited.mark = '';
+//         };    
+//     }
+
+//     filterAvailablePositions();
+//     upgradeCombination();
+//     markCell('X');
+//     filterAvailableCells();
+//     console.log(availablePositions,combination);
+
+    // console.log(combination,'combination')
+    // for(let i=0 ; i<availableCells.length ; i++) {
+    //     let currentPosition = constructedObjects.boardCells[availableCells[i]].position;
+    //     // console.log(currentPosition)
+    //     availablePositions = availablePositions.filter((number) => { 
+    //         if(number !== currentPosition) {
+    //             return true;
+    //         }});
+    //     combination += currentPosition;
+    //     constructedObjects.boardCells[availableCells[i]].mark = 'O';
+    //     availableCells = availableCells.filter((item) => {
+    //         if(item !== availableCells[i]) {
+    //             return true;
+    //         }
+    //     });
+        // console.log(combination,i)
+    // }
+// }
 
 //game events
 const gameEvents = (() => {
@@ -139,9 +206,8 @@ const gameEvents = (() => {
         gameEnded = false;
     };
     
-    
-    return{//,computerTurn,
-};
 })();
 
-//computer turn
+// const computerTurn = () => {
+
+// }
