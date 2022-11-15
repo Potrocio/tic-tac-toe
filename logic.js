@@ -72,71 +72,111 @@ const constructedObjects = ((cell,player,pattern) => {
 
 //AI training
 
+let availableCells = ['cellOne','cellTwo','cellThree','cellFour','cellFive','cellSix','cellSeven','cellEight','cellNine'];
+let combinationArray = [];
+for(let cell in availableCells) {
+
+    function resetBoardCells() {
+        for(let object in constructedObjects.boardCells) {
+            let objectToBeEdited = constructedObjects.boardCells[object];
+            objectToBeEdited.mark = '';
+        };    
+    }
+
+    resetBoardCells();
+    let combination = '000000000';
+    let currentPosition = constructedObjects.boardCells[availableCells[cell]].position;
+
+    constructedObjects.boardCells[availableCells[cell]].mark = 'X';
+    combination[0] = currentPosition;
 
 
-// let availablePositions = [1,2,3,4,5,6,7,8,9];
-// let availableCells = ['cellOne','cellTwo','cellThree','cellFour','cellFive','cellSix','cellSeven','cellEight','cellNine'];
-// for(let i=0 ; i < 9 ; i++) {
-//     resetBoardCells();
-//     let combination = '';
-//     let currentPosition = availableCells[i];
-// //change current position
-//     function filterAvailablePositions() {
-//         availablePositions = availablePositions.filter((number) => { 
-//             if(number !== currentPosition) {
-//                 return true;
-//             }
-//         }); 
-//     }
+    let availableCells2 = availableCells.filter((item) => {
+        if(item !== availableCells[cell]) {
+            return true;
+        }
+    })
 
-//     function upgradeCombination() {
-//         combination += currentPosition;
-//         return combination;
-//     }
+    for(let cell in availableCells2) {
+        let currentPosition = constructedObjects.boardCells[availableCells2[cell]].position;
+        combination[1] = currentPosition;
+        constructedObjects.boardCells[availableCells2[cell]].mark = 'O';
+        let availableCells3 = availableCells2.filter((item) => {
+            if(item !== availableCells2[cell]) {
+                return true;
+            }
+        })
+        // console.log(combination,constructedObjects.boardCells)
+
+        for(let cell in availableCells3) {
+            let currentPosition = constructedObjects.boardCells[availableCells3[cell]].position;
+            combination[2] = currentPosition;
+            constructedObjects.boardCells[availableCells3[cell]].mark = 'X';
+            let availableCells4 = availableCells3.filter((item) => {
+                if(item !== availableCells3[cell]) {
+                    return true;
+                }
+            })
+            for(let cell in availableCells4) {
+                let currentPosition = constructedObjects.boardCells[availableCells4[cell]].position;
+                combination[3] = currentPosition;
+                constructedObjects.boardCells[availableCells4[cell]].mark = 'O';
+                let availableCells5 = availableCells4.filter((item) => {
+                    if(item !== availableCells4[cell]) {
+                        return true;
+                    }
+                })
+                for(let cell in availableCells5) {
+                    let currentPosition = constructedObjects.boardCells[availableCells5[cell]].position;
+                    combination[4] = currentPosition;
+                    constructedObjects.boardCells[availableCells5[cell]].mark = 'X';
+                    let availableCells6 = availableCells5.filter((item) => {
+                        if(item !== availableCells5[cell]) {
+                            return true;
+                        }
+                    })
+                    for(let cell in availableCells6) {
+                        let currentPosition = constructedObjects.boardCells[availableCells6[cell]].position;
+                        combination[5] = currentPosition;
+                        constructedObjects.boardCells[availableCells6[cell]].mark = 'O';
+                        let availableCells7 = availableCells6.filter((item) => {
+                            if(item !== availableCells6[cell]) {
+                                return true;
+                            }
+                        })
+                        for(let cell in availableCells7) {
+                            let currentPosition = constructedObjects.boardCells[availableCells7[cell]].position;
+                            combination[6] = currentPosition;
+                            constructedObjects.boardCells[availableCells7[cell]].mark = 'X';
+                            let availableCells8 = availableCells7.filter((item) => {
+                                if(item !== availableCells7[cell]) {
+                                    return true;
+                                }
+                            })
+                            for(let cell in availableCells8) {
+                                let currentPosition = constructedObjects.boardCells[availableCells8[cell]].position;
+                                combination[7] = currentPosition;
+                                constructedObjects.boardCells[availableCells8[cell]].mark = 'O';
+                                let availableCells9 = availableCells8.filter((item) => {
+                                    if(item !== availableCells8[cell]) {
+                                        return true;
+                                    }
+                                })
+                                for(let cell in availableCells9) {
+                                    let currentPosition = constructedObjects.boardCells[availableCells9[cell]].position;
+                                    combination[8] = currentPosition;
+                                    constructedObjects.boardCells[availableCells9[cell]].mark = 'X';
+                                    combinationArray.push(combination);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     
-//     function markCell(marking) {
-//         constructedObjects.boardCells[availableCells[i]].mark = marking;
-//     }
-    
-//     function filterAvailableCells() {
-//         availableCells = availableCells.filter((item) => {
-//             if(item !== availableCells[i]) {
-//                 return true;
-//             }
-//         })
-//     }
-
-//     function resetBoardCells() {
-//         for(let object in constructedObjects.boardCells) {
-//             let objectToBeEdited = constructedObjects.boardCells[object];
-//             objectToBeEdited.mark = '';
-//         };    
-//     }
-
-//     filterAvailablePositions();
-//     upgradeCombination();
-//     markCell('X');
-//     filterAvailableCells();
-//     console.log(availablePositions,combination);
-
-    // console.log(combination,'combination')
-    // for(let i=0 ; i<availableCells.length ; i++) {
-    //     let currentPosition = constructedObjects.boardCells[availableCells[i]].position;
-    //     // console.log(currentPosition)
-    //     availablePositions = availablePositions.filter((number) => { 
-    //         if(number !== currentPosition) {
-    //             return true;
-    //         }});
-    //     combination += currentPosition;
-    //     constructedObjects.boardCells[availableCells[i]].mark = 'O';
-    //     availableCells = availableCells.filter((item) => {
-    //         if(item !== availableCells[i]) {
-    //             return true;
-    //         }
-    //     });
-        // console.log(combination,i)
-    // }
-// }
+}
 
 //game events
 const gameEvents = (() => {
