@@ -32,10 +32,14 @@ const objectConstructors = (() => {
         return{cellA,cellB,cellC};
     }
 
-    return{Cell,Players,WinningPatterns};
+    const AvailableSpace = (availableCells) => {
+        return{availableCells};
+    }
+
+    return{Cell,Players,WinningPatterns,AvailableSpace};
 })();
 
-const constructedObjects = ((cell,player,pattern) => {
+const constructedObjects = ((cell,player,pattern,available) => {
     const boardCells = (() => {
         const cell1 = cell(1,'','cell one');
         const cell2 = cell(2,'','cell two');
@@ -67,14 +71,28 @@ const constructedObjects = ((cell,player,pattern) => {
         return{rowOne,rowTwo,rowThree,columnOne,columnTwo,columnThree,rowOneDiagonal,rowThreeDiagonal};
     })()
 
+    const availableSpace = (() => {
+        const roundOne = available(['cell1','cell2','cell3','cell4','cell5','cell6','cell7','cell8','cell9']);
+        const roundTwo = available('');
+        const roundThree = available('');
+        const roundFour = available('');
+        const roundFive = available('');
+        const roundSix = available('');
+        const roundSeven = available('');
+        const roundEight = available('');
+        const roundNine = available('');
+        return { roundOne,roundTwo,roundThree,roundFour,roundFive,roundSix,roundSeven,roundEight,roundNine}
 
-    return{boardCells,players,winningPatterns};
-})(objectConstructors.Cell,objectConstructors.Players,objectConstructors.WinningPatterns);
+    })();
+
+    return{boardCells,players,winningPatterns,availableSpace};
+})(objectConstructors.Cell,objectConstructors.Players,objectConstructors.WinningPatterns,objectConstructors.AvailableSpace);
 
 //AI training
 
-let availableCells = ['cell1','cell2','cell3','cell4','cell5','cell6','cell7','cell8','cell9'];
+// let availableCells = ['cell1','cell2','cell3','cell4','cell5','cell6','cell7','cell8','cell9'];
 let combinationArray = [];
+let roundOne = constructedObjects.availableSpace.roundOne.availableCells;
 
 
 function checkTrainingWinner(winningPatterns) {
@@ -87,21 +105,21 @@ function checkTrainingWinner(winningPatterns) {
                 if(object.cellA == 'X') {
                     combination[9] = 'lose';
                     // console.log('X wins' , winningPattern)
-                    let gameStatus = 'finished';
-                    return combination, gameStatus;
+                    return;
 
                 } else {
                     combination[9] = 'win';
                     // console.log('O wins', winningPattern)
-                    let gameStatus = 'finished';
-                    return combination,gameStatus;
+                    return;
                 }; 
             }
+        } else {
+            combination[9] = 'tie';
         }
     };
 };
 
-function checkInterception(stage,marking,combinationIndex,availableCells) {
+function checkInterception(stage,marking,combinationIndex,currentRound,nextRound) {
     var cycleFinished = false;
     for (let object in constructedObjects.winningPatterns) {
         object = constructedObjects.winningPatterns[object];
@@ -111,40 +129,57 @@ function checkInterception(stage,marking,combinationIndex,availableCells) {
                 for(let cell in object) {
                     if(object[cell].mark == ''){
                         let objectPosition = 'cell' + object[cell].position;
-                        console.log('how many times did this run', objectPosition)
                         constructedObjects.boardCells[objectPosition].mark = marking;
                         combination[combinationIndex] = object[cell].position;
-
-                        afterInterceptionAvailability = availableCells.filter((item) => {
-                            if(item !== availableCells[objectPosition]) {
-                                return true;
-                            }
-                        })
+                        if(nextRound){
+                            constructedObjects.availableSpace[nextRound].availableCells = currentRound.filter((item) => {
+                                if(item !== objectPosition) {
+                                    return true;
+                                }
+                            })
+                        }
                         cycleFinished = true;
                     }
                 }
-            } else {
-                combination[combinationIndex] = constructedObjects.boardCells[stage].position;
-                constructedObjects.boardCells[stage].mark = marking;  
-                // return combination              
-                //causing empty cells in the game because position 7 cannot place a mark on position 5 if 5 had to intercept somewhere else
             }
         }
+        
     }
-    for (let number in constructedObjects.boardCells) {
-        console.log(constructedObjects.boardCells[number].mark, constructedObjects.boardCells[number].position)
+
+    if (cycleFinished == false) {
+        combination[combinationIndex] = constructedObjects.boardCells[stage].position;
+        constructedObjects.boardCells[stage].mark = marking;
+        if(nextRound) {
+            constructedObjects.availableSpace[nextRound].availableCells = currentRound.filter((item) => {
+                if(item !== stage) {
+                    return true;
+                }
+            })
+        } 
     }
-    let test = '';
-    for (let number in combination) {
-        test += combination[number];
-    }
-    console.log(test,combinationIndex+1)
-    return combination;
+    // for (let number in constructedObjects.boardCells) {
+    //     console.log(number,constructedObjects.boardCells[number].mark, constructedObjects.boardCells[number].position)
+    // }
+    // let testing = '';
+    // for (let number in combination) {
+    //     testing += combination[number];
+    // }
+    // console.log(testing,combinationIndex+1)
+    // return combination;
 }
 
+function clearRemainingSpaces(availableCells, combinationIndex) {
+    for (let cell in availableCells) {
+        constructedObjects.boardCells[availableCells[cell]].mark = '';
+    }
+    let combinationsToDelete = 9 - combinationIndex;
+    for (let i = combinationIndex; i < combinationsToDelete; i++) {
+        combination[i] = 0
+    }
+}
 
 loop1:
-    for(let cell in availableCells) {
+    for(let cell in roundOne) {
 
         function resetBoardCells() {
             for(let object in constructedObjects.boardCells) {
@@ -155,118 +190,50 @@ loop1:
 
         resetBoardCells();
         var combination = [0,0,0,0,0,0,0,0,0,''];
-        // let currentPosition = constructedObjects.boardCells[availableCells[cell]].position;
 
-        // constructedObjects.boardCells[availableCells[cell]].mark = 'X';
-        console.log('first stage')
-        let afterInterceptionAvailability = availableCells;
-        console.log(afterInterceptionAvailability)
-        checkInterception(availableCells[cell],'X',0)
-        let availableCells2 = afterInterceptionAvailability;
-        console.log(afterInterceptionAvailability)
-        // combination[0] = currentPosition;
+        checkInterception(roundOne[cell],'X',0,roundOne,'roundTwo')
 
 loop2:
-        for(let cell in availableCells2) {
-            // let currentPosition = constructedObjects.boardCells[availableCells2[cell]].position;
-            // combination[1] = currentPosition;
-            // constructedObjects.boardCells[availableCells2[cell]].mark = 'O';
-            console.log('second stage')
+        for(let cell in constructedObjects.availableSpace.roundTwo.availableCells) {
+            clearRemainingSpaces(constructedObjects.availableSpace.roundTwo.availableCells,1);
+            checkInterception(constructedObjects.availableSpace.roundTwo.availableCells[cell],'O',1,constructedObjects.availableSpace.roundTwo.availableCells, 'roundThree')
 
-            checkInterception(availableCells2[cell],'O',1,3)
-            let availableCells3 = availableCells2.filter((item) => {
-                if(item !== availableCells2[cell]) {
-                    return true;
-                }
-            })
-            // console.log(combination,constructedObjects.boardCells)
 loop3:
-            for(let cell in availableCells3) {
-                // let currentPosition = constructedObjects.boardCells[availableCells3[cell]].position;
-                // combination[2] = currentPosition;
-                // constructedObjects.boardCells[availableCells3[cell]].mark = 'X';
-                console.log('third stage')
+            for(let cell in constructedObjects.availableSpace.roundThree.availableCells) {
+                clearRemainingSpaces(constructedObjects.availableSpace.roundThree.availableCells,2);
+                checkInterception(constructedObjects.availableSpace.roundThree.availableCells[cell],'X',2,constructedObjects.availableSpace.roundThree.availableCells, 'roundFour')
 
-                checkInterception(availableCells3[cell],'X',2,4)
-                let availableCells4 = availableCells3.filter((item) => {
-                    if(item !== availableCells3[cell]) {
-                        return true;
-                    }
-                })
 loop4:
-                for(let cell in availableCells4) {
-                    // let currentPosition = constructedObjects.boardCells[availableCells4[cell]].position;
-                    // combination[3] = currentPosition;
-                    // constructedObjects.boardCells[availableCells4[cell]].mark = 'O';
-                    console.log('fourth stage')
-                    checkInterception(availableCells4[cell],'O',3,5)
-                    let availableCells5 = availableCells4.filter((item) => {
-                        if(item !== availableCells4[cell]) {
-                            return true;
-                        }
-                    })
+                for(let cell in constructedObjects.availableSpace.roundFour.availableCells) {
+                    clearRemainingSpaces(constructedObjects.availableSpace.roundFour.availableCells,3);
+                    checkInterception(constructedObjects.availableSpace.roundFour.availableCells[cell],'O',3,constructedObjects.availableSpace.roundFour.availableCells, 'roundFive')
+
 loop5:
-                    for(let cell in availableCells5) {
-                        // let currentPosition = constructedObjects.boardCells[availableCells5[cell]].position;
-                        // combination[4] = currentPosition;
-                        // constructedObjects.boardCells[availableCells5[cell]].mark = 'X';
-                        console.log('fifth stage')
-                        checkInterception(availableCells5[cell],'X',4,6)
-                        let availableCells6 = availableCells5.filter((item) => {
-                            if(item !== availableCells5[cell]) {
-                                return true;
-                            }
-                        })
+                    for(let cell in constructedObjects.availableSpace.roundFive.availableCells) {
+                        clearRemainingSpaces(constructedObjects.availableSpace.roundFive.availableCells,4);
+                        checkInterception(constructedObjects.availableSpace.roundFive.availableCells[cell],'X',4,constructedObjects.availableSpace.roundFive.availableCells,'roundSix')
+
 loop6:
-                        for(let cell in availableCells6) {
-                            // let currentPosition = constructedObjects.boardCells[availableCells6[cell]].position;
-                            // combination[5] = currentPosition;
-                            // constructedObjects.boardCells[availableCells6[cell]].mark = 'O';
-                            console.log('sixth stage')
-                            checkInterception(availableCells6[cell],'O',5,7)
+                        for(let cell in constructedObjects.availableSpace.roundSix.availableCells) {
+                            clearRemainingSpaces(constructedObjects.availableSpace.roundSix.availableCells,5);
+                            checkInterception(constructedObjects.availableSpace.roundSix.availableCells[cell],'O',5,constructedObjects.availableSpace.roundSix.availableCells,'roundSeven')
 
-                            let availableCells7 = availableCells6.filter((item) => {
-                                if(item !== availableCells6[cell]) {
-                                    return true;
-                                }
-                            })
 loop7:
-                            for(let cell in availableCells7) {
-                                // let currentPosition = constructedObjects.boardCells[availableCells7[cell]].position;
-                                // combination[6] = currentPosition;
-                                // constructedObjects.boardCells[availableCells7[cell]].mark = 'X';
-                                console.log('seventh stage')
-                                checkInterception(availableCells7[cell],'X',6,8)
+                            for(let cell in constructedObjects.availableSpace.roundSeven.availableCells) {
+                                clearRemainingSpaces(constructedObjects.availableSpace.roundSeven.availableCells,6);
+                                checkInterception(constructedObjects.availableSpace.roundSeven.availableCells[cell],'X',6,constructedObjects.availableSpace.roundSeven.availableCells,'roundEight')
 
-                                let availableCells8 = availableCells7.filter((item) => {
-                                    if(item !== availableCells7[cell]) {
-                                        return true;
-                                    }
-                                })
 loop8:
-                                for(let cell in availableCells8) {
-                                    // let currentPosition = constructedObjects.boardCells[availableCells8[cell]].position;
-                                    // combination[7] = currentPosition;
-                                    // constructedObjects.boardCells[availableCells8[cell]].mark = 'O';
-                                    console.log('eight stage')
-                                    checkInterception(availableCells8[cell],'O',7,9)
+                                for(let cell in constructedObjects.availableSpace.roundEight.availableCells) {
+                                    clearRemainingSpaces(constructedObjects.availableSpace.roundEight.availableCells,7);
+                                    checkInterception(constructedObjects.availableSpace.roundEight.availableCells[cell],'O',7,constructedObjects.availableSpace.roundEight.availableCells,'roundNine')
 
-                                    let availableCells9 = availableCells8.filter((item) => {
-                                        if(item !== availableCells8[cell]) {
-                                            return true;
-                                        }
-                                    })
 loop9:
-                                    for(let cell in availableCells9) {
-                                        // let currentPosition = constructedObjects.boardCells[availableCells9[cell]].position;
-                                        // combination[8] = currentPosition;
-                                        // constructedObjects.boardCells[availableCells9[cell]].mark = 'X';
-                                        console.log('ninth stage')
-                                        checkInterception(availableCells9[cell],'X',8)
+                                    for(let cell in constructedObjects.availableSpace.roundNine.availableCells) {
+                                        checkInterception(constructedObjects.availableSpace.roundNine.availableCells[cell],'X',8,constructedObjects.availableSpace.roundNine.availableCells)
 
                                         let finalCombination = ''
                                         let finalBoardCells = '';
-                                        // var finalBoardCells = '';
                                         
                                         for(let i=0 ; i < 9 ; i++) {
                                             finalBoardCells += constructedObjects.boardCells['cell'+ (i+1)].mark;
@@ -288,12 +255,13 @@ loop9:
                                             finalCombination += combination[i]
                                         }
                                         
-                                        console.log('final round',finalBoardCells,finalCombination)
+                                        // console.log('final round',finalBoardCells,finalCombination)
                                         combinationArray.push([finalCombination]);
+                                        combination[9] = '';
 
-                                        if(combinationArray.length == 7) {
-                                            break loop1;
-                                        }
+                                        // if(combinationArray.length == 25) {
+                                        //     break loop1;
+                                        // }
                                     }
                                 }
                             }
@@ -305,7 +273,7 @@ loop9:
         
     }
 
-defaultGameVariables();
+// defaultGameVariables();
 
 
 //game events
