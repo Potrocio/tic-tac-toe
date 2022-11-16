@@ -1,6 +1,7 @@
 'use strict';
 
 let finalBoardCells = 'placeholder'
+
 const querySelectors = (() => {
     const cells = document.querySelectorAll('.cell');
     const userScore = document.querySelector('.user-score > .score');
@@ -259,9 +260,9 @@ loop9:
                                         combinationArray.push([finalCombination]);
                                         combination[9] = '';
 
-                                        // if(combinationArray.length == 25) {
-                                        //     break loop1;
-                                        // }
+                                        if(combinationArray.length == 1) {
+                                            break loop1;
+                                        }
                                     }
                                 }
                             }
@@ -273,16 +274,47 @@ loop9:
         
     }
 
-// defaultGameVariables();
+defaultGameVariables();
+let previousItem = '';
+
+combinationArray = combinationArray.sort()
+
+combinationArray = combinationArray.filter((item) => {
+    if(item[0] != previousItem) {
+        previousItem = item;
+        return true;
+    }
+})
+
+let winningCombinations = combinationArray.filter((item) => {
+    if(item[0][9] == 'w') {
+        return true;
+    };
+})
+
+let tyingCombinations = combinationArray.filter((item) => {
+    if(item[0][9] == 't') {
+        return true;
+    };
+})
+
+let losingCombinations = combinationArray.filter((item) => {
+    if(item[0][9] == 'l') {
+        return true;
+    };
+})
 
 
 //game events
 const gameEvents = (() => {
     let gameEnded = false;
+    let currentCombination = '';
     const updateGameBoard = (() => {
         querySelectors.cells.forEach((cell) => {
             cell.addEventListener('click', (e) => {
                 if(cell.textContent == '' && gameEnded == false) {
+                    currentCombination += e.target.id;
+                    console.log(currentCombination)
                     cell.textContent = constructedObjects.players.user.mark;
                     for(let object in constructedObjects.boardCells) {
                         if(constructedObjects.boardCells[object].className == e.target.classList.value)  {
@@ -293,7 +325,7 @@ const gameEvents = (() => {
                     checkWinner();
                 }
             })
-        })    
+        })
     })();
 
     const checkWinner = () => {
@@ -304,6 +336,8 @@ const gameEvents = (() => {
                     if(object.cellA.mark == 'X') {
                         declareWinner('User!');
                         gameEnded = true;
+                        console.log(window.gameEnded)
+
                         let currentScore = querySelectors.userScore.textContent;
                         querySelectors.userScore.textContent = Number(currentScore) + 1;
                         nextRound();
@@ -316,7 +350,6 @@ const gameEvents = (() => {
                         nextRound();
                         break;
                     };
-                    
                 }
             } else {
                 // computerTurn()
@@ -340,12 +373,48 @@ const gameEvents = (() => {
                 objectToBeEdited.mark = '';
             };
             querySelectors.messageBoard.textContent = '';
+            gameEnded = false;
+            currentCombination = '';
         });
-        gameEnded = false;
     };
-    
+    return{updateGameBoard,checkWinner,declareWinner}
 })();
 
-// const computerTurn = () => {
+//make sure that availableWinningCombinations is an array of combinations which combinations do not have losing chances.
+//you can do this testing the currentCombination next number and seeing how many losing combinations there are.
+function nextAvailableChoices(){
+    let choices = [1,2,3,4,5,6,7,8,9]
+    let currentCombination = '12345';
+    let filteredChoices = choices;
+    for (let a = 0 ; a < choices.length; a++) {
+        for (let i = 0 ; i < currentCombination.length; i++) {
+            if(choices[a] == currentCombination[i]) {
+                console.log(choices[a], currentCombination[i])
+                delete filteredChoices[a]
+                // using delete is causing empty iteratable object spaces
+            }
+        }   
+    }
+    
+    console.log(filteredChoices,filteredChoices.length)
+}
+nextAvailableChoices();
 
-// }
+function choiceStatistics() {
+
+}
+
+function bestChoice(){
+
+    // if(availableWinningCombinations != undefined) {
+    //     return availableWinningCombinations[0];
+    // } else if(availableTyingCombinations != undefined) {
+    //     return availableTyingCombinations[0];
+    // }  else {
+        
+    // }
+}
+
+function computerTurn() {
+    choice = '';
+}
