@@ -91,7 +91,6 @@ const constructedObjects = ((cell,player,pattern,available) => {
 
 //AI training
 
-// let availableCells = ['cell1','cell2','cell3','cell4','cell5','cell6','cell7','cell8','cell9'];
 let combinationArray = [];
 let roundOne = constructedObjects.availableSpace.roundOne.availableCells;
 
@@ -260,7 +259,7 @@ loop9:
                                         combinationArray.push([finalCombination]);
                                         combination[9] = '';
 
-                                        if(combinationArray.length == 1) {
+                                        if(combinationArray.length == 100) {
                                             break loop1;
                                         }
                                     }
@@ -308,13 +307,14 @@ let losingCombinations = combinationArray.filter((item) => {
 //game events
 const gameEvents = (() => {
     let gameEnded = false;
+    let yourTurn = true;
     let currentCombination = '';
     const updateGameBoard = (() => {
+
         querySelectors.cells.forEach((cell) => {
             cell.addEventListener('click', (e) => {
-                if(cell.textContent == '' && gameEnded == false) {
-                    currentCombination += e.target.id;
-                    console.log(currentCombination)
+                if(cell.textContent == '' && gameEnded == false && yourTurn == true) {
+                    gameEvents.currentCombination += e.target.id;
                     cell.textContent = constructedObjects.players.user.mark;
                     for(let object in constructedObjects.boardCells) {
                         if(constructedObjects.boardCells[object].className == e.target.classList.value)  {
@@ -322,10 +322,13 @@ const gameEvents = (() => {
                             objectToBeEdited.mark = 'X';
                         }
                     };
+                    // yourTurn = false;
                     checkWinner();
+                    nextAvailableChoices();
                 }
             })
         })
+    return{currentCombination}
     })();
 
     const checkWinner = () => {
@@ -336,8 +339,6 @@ const gameEvents = (() => {
                     if(object.cellA.mark == 'X') {
                         declareWinner('User!');
                         gameEnded = true;
-                        console.log(window.gameEnded)
-
                         let currentScore = querySelectors.userScore.textContent;
                         querySelectors.userScore.textContent = Number(currentScore) + 1;
                         nextRound();
@@ -374,33 +375,43 @@ const gameEvents = (() => {
             };
             querySelectors.messageBoard.textContent = '';
             gameEnded = false;
-            currentCombination = '';
+            gameEvents.currentCombination = '';
         });
     };
-    return{updateGameBoard,checkWinner,declareWinner}
+    return{currentCombination,updateGameBoard,checkWinner,declareWinner}
 })();
 
 //make sure that availableWinningCombinations is an array of combinations which combinations do not have losing chances.
 //you can do this testing the currentCombination next number and seeing how many losing combinations there are.
 function nextAvailableChoices(){
     let choices = [1,2,3,4,5,6,7,8,9]
-    let currentCombination = '12345';
-    let filteredChoices = choices;
-    for (let a = 0 ; a < choices.length; a++) {
-        for (let i = 0 ; i < currentCombination.length; i++) {
-            if(choices[a] == currentCombination[i]) {
-                console.log(choices[a], currentCombination[i])
-                delete filteredChoices[a]
-                // using delete is causing empty iteratable object spaces
-            }
-        }   
-    }
-    
-    console.log(filteredChoices,filteredChoices.length)
+    choices = choices.filter((item) => {
+        return !gameEvents.currentCombination.includes(item);
+    })
+    console.log(choices)
+    choiceStatistics(choices)
 }
-nextAvailableChoices();
 
-function choiceStatistics() {
+function choiceStatistics(choices) {
+    console.log(choices)
+    choices.forEach((number) => {
+        let choice = number;
+        let combinationWithChoice = gameEvents.currentCombination + choice;
+        let availableWinningCombinations = winningCombinations.filter((item) => {
+            return item[0].includes(combinationWithChoice);
+        })
+        let availableLosingCombinations = losingCombinations.filter((item) => {
+            return item[0].includes(combinationWithChoice);
+        })
+        let availableTyingCombinations = tyingCombinations.filter((item) => {
+            return item[0].includes(combinationWithChoice);
+        })
+        let winningOdds = Math.trunc(Number(availableWinningCombinations.length/availableLosingCombinations.length * 100));
+        if(!winningOdds) {
+            winningOdds = 0;
+        }
+        console.log('choice '+ choice, 'win: ', availableWinningCombinations.length, '  lose :', availableLosingCombinations.length, '  tie: ', availableTyingCombinations.length, 'Winning odds: ',winningOdds + "%");
+    })
 
 }
 
