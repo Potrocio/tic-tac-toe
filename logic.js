@@ -259,7 +259,7 @@ loop9:
                                         combinationArray.push([finalCombination]);
                                         combination[9] = '';
 
-                                        if(combinationArray.length == 100) {
+                                        if(combinationArray.length == 10) {
                                             break loop1;
                                         }
                                     }
@@ -322,9 +322,10 @@ const gameEvents = (() => {
                             objectToBeEdited.mark = 'X';
                         }
                     };
-                    // yourTurn = false;
+                    yourTurn = false;
                     checkWinner();
                     nextAvailableChoices();
+                    computerTurn();
                 }
             })
         })
@@ -352,8 +353,6 @@ const gameEvents = (() => {
                         break;
                     };
                 }
-            } else {
-                // computerTurn()
             }
         };
     };
@@ -388,12 +387,13 @@ function nextAvailableChoices(){
     choices = choices.filter((item) => {
         return !gameEvents.currentCombination.includes(item);
     })
-    console.log(choices)
+    // console.log(choices)
     choiceStatistics(choices)
+    // console.log(choices)
 }
 
 function choiceStatistics(choices) {
-    console.log(choices)
+    // console.log(choices)
     choices.forEach((number) => {
         let choice = number;
         let combinationWithChoice = gameEvents.currentCombination + choice;
@@ -406,26 +406,55 @@ function choiceStatistics(choices) {
         let availableTyingCombinations = tyingCombinations.filter((item) => {
             return item[0].includes(combinationWithChoice);
         })
-        let winningOdds = Math.trunc(Number(availableWinningCombinations.length/availableLosingCombinations.length * 100));
-        if(!winningOdds) {
-            winningOdds = 0;
-        }
-        console.log('choice '+ choice, 'win: ', availableWinningCombinations.length, '  lose :', availableLosingCombinations.length, '  tie: ', availableTyingCombinations.length, 'Winning odds: ',winningOdds + "%");
+        // let winningOdds = Math.trunc(availableWinningCombinations.length/(availableLosingCombinations.length + availableTyingCombinations.length) * 100);
+        // let losingOdds = Math.trunc(availableLosingCombinations.length/(availableTyingCombinations.length + availableWinningCombinations.length) * 100)
+        // let tyingOdds = Math.trunc(availableTyingCombinations.length/(availableLosingCombinations.length + availableWinningCombinations.length) * 100)
+        // if(winningOdds == Infinity) {
+        //     winningOdds = 100;
+        // } else if(!winningOdds) {
+        //     winningOdds = 0;
+        // }
+        // if(losingOdds == Infinity) {
+        //     losingOdds = 100;
+        // } else if(!losingOdds) {
+        //     losingOdds = 0;
+        // }
+        // if(tyingOdds == Infinity) {
+        //     tyingOdds = 100;
+        // } else if(!tyingOdds) {
+        //     tyingOdds = 0;
+        // }
+        // console.log('choice '+ choice, 'win: ', winningOdds + '%', '  lose :', losingOdds + '%', '  tie: ', tyingOdds + '%');
+        console.log('choice '+ choice, 'win: ', availableWinningCombinations.length, '  lose :', availableLosingCombinations.length, '  tie: ', availableTyingCombinations.length);
     })
 
 }
 
-function bestChoice(){
-
-    // if(availableWinningCombinations != undefined) {
-    //     return availableWinningCombinations[0];
-    // } else if(availableTyingCombinations != undefined) {
-    //     return availableTyingCombinations[0];
-    // }  else {
-        
-    // }
+function pickBestChoice(){
+    console.log('hi')
 }
 
+function checkComputerInterception() {
+    let cycleFinished = false;
+    for (let object in constructedObjects.winningPatterns) {
+        object = constructedObjects.winningPatterns[object];
+        let totalMarks = object.cellA.mark + object.cellB.mark + object.cellC.mark;
+        if(cycleFinished === false) {
+            if(totalMarks.length === 2 && totalMarks[0] == totalMarks[1]) {
+                for(let cell in object) {
+                    if(object[cell].mark == ''){
+                        let objectPosition = 'cell' + object[cell].position;
+                        constructedObjects.boardCells[objectPosition].mark = 'O';
+                        cycleFinished = true;
+                    }
+                }
+            }
+        }   
+    }
+    if (cycleFinished == false) {
+         pickBestChoice()
+    }
+}
 function computerTurn() {
-    choice = '';
+    checkComputerInterception();
 }
