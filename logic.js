@@ -333,6 +333,7 @@ const gameEvents = (() => {
                         yourTurn = true;
                     } else { 
                         nextRound();
+                        yourTurn = true;
                     }
                 }
             })
@@ -529,7 +530,7 @@ function pickBestChoice(highestWinningChoice,highestTyingChoice,lowestLosingChoi
    
 }
 let computerTurnEnded = '';
-
+// work on 4,5,6 computer not executing next round
 function checkComputerInterception() {
     console.log('check computer interception works')
     computerTurnEnded = false;
