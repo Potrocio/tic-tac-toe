@@ -310,10 +310,12 @@ const gameEvents = (() => {
     let gameEnded = false;
     let yourTurn = true;
     let currentCombination = '';
+    let lastCellHovered = '';
     const updateGameBoard = (() => {
 
         querySelectors.cells.forEach((cell) => {
             cell.addEventListener('click', (e) => {
+                cell.setAttribute('style','border:none;')
                 if(cell.textContent == '' && gameEnded == false && yourTurn == true) {
                     turnCounter += 1;
                     gameEvents.currentCombination += e.target.id;
@@ -325,16 +327,31 @@ const gameEvents = (() => {
                         }
                     };
                     yourTurn = false;
-                    console.log('click works')
+                    // console.log('click works')
 
                     checkWinner();
                     if(gameEnded == false && turnCounter != 5) {
                         computerTurn();
                         yourTurn = true;
                     } else { 
-                        nextRound();
                         yourTurn = true;
+                        gameEnded = true;
+                        declareWinner('none','tie')
+                        nextRound();
                     }
+                }
+            })
+            cell.addEventListener('mouseover', () => {
+                if(cell.textContent == '') {
+                    if(lastCellHovered == ''){
+                        lastCellHovered = cell;
+                        lastCellHovered.setAttribute('style','border: 2px solid green;')
+                    } else {
+                        lastCellHovered.setAttribute('style','border: none;')
+                        cell.setAttribute('style','border: 2px solid green;')
+                        lastCellHovered = cell;
+                    }
+
                 }
             })
         })
@@ -498,18 +515,18 @@ function choiceStatistics(choices) {
 
 function pickBestChoice(highestWinningChoice,highestTyingChoice,lowestLosingChoice,zeroLosingChoices){
     let idealChoice = '';
-    console.log(highestWinningChoice,highestTyingChoice,lowestLosingChoice,zeroLosingChoices)
-    console.log('pick best choice works')
+    // console.log(highestWinningChoice,highestTyingChoice,lowestLosingChoice,zeroLosingChoices)
+    // console.log('pick best choice works')
     if(zeroLosingChoices.length != 0){
-        if(highestWinningChoice !='') {
-            console.log('highest winning choice',highestWinningChoice, 'zero losing choices', zeroLosingChoices)
+        if(highestWinningChoice !='' && zeroLosingChoices.includes(highestWinningChoice)) {
+            // console.log('highest winning choice',highestWinningChoice, 'zero losing choices', zeroLosingChoices)
             idealChoice = zeroLosingChoices.filter((item) => {
                 if(item == highestWinningChoice) {
                     return true;
                 }
             })
-        } else if(zeroLosingChoices.includes(highestTyingChoice)){
-            console.log('highest tying choice',highestTyingChoice, 'zero losing choices', zeroLosingChoices)
+        } else if(highestTyingChoice != '' && zeroLosingChoices.includes(highestTyingChoice)){
+            // console.log('highest tying choice',highestTyingChoice, 'zero losing choices', zeroLosingChoices)
 
             idealChoice = zeroLosingChoices.filter((item) => {
                 if(item == highestTyingChoice) {
@@ -521,10 +538,10 @@ function pickBestChoice(highestWinningChoice,highestTyingChoice,lowestLosingChoi
         }
     } else {
         idealChoice = lowestLosingChoice;
-        console.log('lowest losing choice')
+        // console.log('lowest losing choice')
     }
     gameEvents.currentCombination += idealChoice;
-    console.log(idealChoice)
+    // console.log(idealChoice)
     constructedObjects.boardCells['cell'+[idealChoice]].mark = 'O';
     document.getElementById(idealChoice).textContent = 'O'
    
@@ -532,7 +549,7 @@ function pickBestChoice(highestWinningChoice,highestTyingChoice,lowestLosingChoi
 let computerTurnEnded = '';
 // work on 4,5,6 computer not executing next round..
 function checkComputerInterception() {
-    console.log('check computer interception works')
+    // console.log('check computer interception works')
     computerTurnEnded = false;
     let cycleFinished = false;
     for (let object in constructedObjects.winningPatterns) {
@@ -544,7 +561,7 @@ function checkComputerInterception() {
                     if(object[cell].mark == ''){
                         let objectPosition = 'cell' + object[cell].position;
                         constructedObjects.boardCells[objectPosition].mark = 'O';
-                        console.log('this is computer interception',constructedObjects.boardCells[objectPosition].mark)
+                        // console.log('this is computer interception',constructedObjects.boardCells[objectPosition].mark)
                         cycleFinished = true;
                         computerTurnEnded = true;
                         gameEvents.currentCombination += object[cell].position;
@@ -558,7 +575,7 @@ function checkComputerInterception() {
     
 }
 function computerTurn() {
-    console.log('computer turn works')
+    // console.log('computer turn works')
     nextAvailableChoices();
     checkComputerInterception();
     if(computerTurnEnded == false) {
